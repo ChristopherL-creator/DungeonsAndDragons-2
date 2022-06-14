@@ -2,7 +2,10 @@
 
 const API_URL = 'https://www.dnd5eapi.co/api/classes';
 
-let classesArray = [];
+let classesArray = []; 
+
+let hitDieArray = []; 
+// console.log(hitDieArray);
 
 const classesTemplate = 
 `
@@ -74,15 +77,15 @@ function printClasses(classesArray) {
     const html = classesTemplate.replaceAll('#IMG', './assets/classes/' + classes.name.toLowerCase() + '.png')
                                 .replaceAll('#NAME', classes.name);
 
-    console.log(html)
+    (html)
     classesCard.innerHTML = html;
     container.appendChild(classesCard);
   }
 }
 
-function initClasses(classesJSON) {
+function initClasses(classesJSON) { 
   const array = classesJSON.results;
-  classesArray = array.map(obj => Class.fromDbObj(obj));
+  classesArray = array.map(obj => Class.fromDbObj(obj)); 
   printClasses(classesArray);
 }
 
@@ -90,6 +93,32 @@ function init() {
   fetch(API_URL)
   .then(response => response.json())
   .then(result => initClasses(result));
+} 
+
+function init2() {
+  fetch('../classes.json') // per altri dati non contenuti nella API
+  .then(response => response.json())
+  .then(result => {
+    for(const className in result.classes){ 
+      hitDieArray.push(result.classes[className].hit_die)      
+    }
+  console.log(hitDieArray);
+  }); 
+} 
+init2(); 
+
+function changeFilterValue(){ 
+  let selectedValue = document.getElementById("hit-die").value; 
+  if (selectedValue === "none") {
+    printClasses(classesArray);
+  } else { 
+    selectedValue = parseInt(selectedValue); 
+    let filteredArray = []; 
+    for (let i = 0; i < classesArray.length; i++) {
+      if (hitDieArray[i] === selectedValue) filteredArray.push(classesArray[i]);
+    } 
+    printClasses(filteredArray);
+  }  
 }
 
 init();
